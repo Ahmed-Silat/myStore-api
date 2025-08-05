@@ -5,10 +5,9 @@ import { fetchProductById } from "../API/productService.js";
 export const getProductsById = async (req, res) => {
   const { id } = req.params;
   try {
-    // Fetch product info from fakestoreapi
     const productRes = await fetchProductById(id);
     const product = productRes.data;
-    console.log("product", product);
+    // console.log("product", product);
 
     // Get pricing info from local DB
     const price = await Price.findOne({ productId: Number(id) });
@@ -29,5 +28,30 @@ export const getProductsById = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error fetching product" });
+  }
+};
+
+export const updatePrice = async (req, res) => {
+  const { id } = req.params;
+  const { value, currency_code } = req.body;
+
+  if (typeof value !== "number") {
+    return res.status(400).json({ message: "Invalid price data" });
+  }
+
+  try {
+    const updatedPrice = await Price.findOneAndUpdate(
+      { productId: Number(id) },
+      {
+        value,
+        currency_code: currency_code || "USD",
+      },
+      { new: true, upsert: true }
+    );
+
+    res.json({ message: "Price updated", updatedPrice });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error updating price" });
   }
 };
