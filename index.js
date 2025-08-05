@@ -20,6 +20,8 @@ mongoose
     console.log(err);
   });
 
+import productRoutes from "./routes/product.route.js";
+app.use("/products", productRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
